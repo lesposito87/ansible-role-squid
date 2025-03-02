@@ -1,0 +1,6 @@
+---
+- name: squid_restart
+  service:
+    name: squid
+    enabled: yes
+    state: restarted

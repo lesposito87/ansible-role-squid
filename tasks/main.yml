@@ -1,0 +1,17 @@
+---
+##############
+### ASSERT ###
+##############
+
+- name: Ensure you're running a supported Ubuntu based OS and Squid version
+  assert:
+    that:
+      - ansible_distribution == 'Ubuntu'
+      - ansible_distribution_version is regex("(20.04)")
+      - squid_version is regex("(4|5)")
+
+- name: Including "{{ ansible_distribution | lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml" variable's file
+  include_vars: "vars/{{ ansible_distribution | lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml"
+
+- name: Including Squid setup task
+  include_tasks: "squid.yml"

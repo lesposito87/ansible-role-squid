@@ -1,0 +1,189 @@
+---
+###################
+### SQUID SETUP ###
+###################
+
+- name: Ensure "python3-selinux" pkg is installed
+  package:
+    name: "python3-selinux"
+    state: present
+
+- name: Check if SELinux is installed
+  find:
+    paths: "/etc/selinux"
+    hidden: false
+    file_type: file
+    patterns: "config"
+    recurse: no
+  register: selinux_result
+
+- name: Configuring SELinux in permissive mode
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+  when: (selinux_result.files | length > 0)
+
+- name: Ensure Firewalld/Iptables service are stopped
+  service:
+    name: "{{ item_firewalld_svc }}"
+    state: stopped
+    enabled: false
+  loop:
+    - firewalld
+    - iptables
+  loop_control:
+    loop_var: item_firewalld_svc
+  ignore_errors: yes
+
+- name: Adding Apt signing key
+  ansible.builtin.apt_key:
+    url: "{{ squid.apt_key }}"
+    state: present
+
+- name: Adding Squid Debian repository
+  ansible.builtin.apt_repository:
+    repo: "{{ squid.apt_repo }}"
+    state: present
+    filename: "{{ squid.apt_local_repo_file }}"
+    update_cache: yes
+
+- name: Installing required packages
+  package:
+    name: "{{ item_squid_requirements }}"
+    state: present
+  loop: "{{ squid.requirements }}"
+  loop_control:
+    loop_var: item_squid_requirements
+
+- name: Gather packages facts
+  package_facts:
+    manager: apt
+
+- name: UnPin Squid packages (apt)
+  dpkg_selections:
+    name: "{{ item_squid_pkgs_pin }}"
+    selection: install
+  changed_when: false
+  with_items: "{{ squid.pkgs }}"
+  loop_control:
+    loop_var: item_squid_pkgs_pin
+  when: (ansible_pkg_mgr == 'apt') and
+        (squid_pin|bool != True) and
+        (("squid-common" in ansible_facts.packages) or 
+         ("squid-openssl" in ansible_facts.packages) or
+         ("squidclient" in ansible_facts.packages))
+
+- name: Installing Squid packages
+  package:
+    name: "{{ item_squid_pkgs }}={{squid.version}}"
+    state: present
+  loop: "{{ squid.pkgs }}"
+  loop_control:
+    loop_var: item_squid_pkgs
+
+- name: Pin Squid packages (apt)
+  dpkg_selections:
+    name: "{{ item_squid_pkgs_pin }}"
+    selection: hold
+  changed_when: false
+  with_items: "{{ squid.pkgs }}"
+  loop_control:
+    loop_var: item_squid_pkgs_pin
+  when: (ansible_pkg_mgr == 'apt') and
+        (squid_pin)
+
+- name: Ensure Self Signed certificates directory exists
+  file:
+    path:  "{{ squid_certs_dir.path }}"
+    mode:  "{{ squid_certs_dir.mode }}"
+    state: "directory"
+    owner: "{{ squid_certs_dir.owner }}"
+    group: "{{ squid_certs_dir.group }}"
+    recurse: yes
+
+- name: Retrieving Self Signed certificates
+  find:
+    paths: "{{ squid_certs_dir.path }}"
+    hidden: false
+    file_type: any
+    recurse: no
+  register: certs_result
+
+- name: Generating and Copying Self Signed certificates
+  block:
+
+    - name: Ensure Squid service is stopped
+      service:
+        name: squid
+        state: stopped
+        enabled: yes
+
+    - name: Creating Self Signed certificates
+      shell: |
+        openssl req -new -newkey rsa:2048 -sha256 -days 36500 -nodes -x509 -extensions v3_ca -keyout "{{ squid_certs_dir.path }}"/"{{ squid_certs_key }}" -out "{{ squid_certs_dir.path }}"/"{{ squid_certs_cert }}" -subj "/CN=*.{{ domain_name }}"
+        cat "{{ squid_certs_dir.path }}"/"{{ squid_certs_cert }}" "{{ squid_certs_dir.path }}"/"{{ squid_certs_key }}" > "{{ squid_certs_dir.path }}"/"{{ squid_certs_chain }}"
+
+    - name: Ensure ownership of Self Signed certificates directory is correct
+      file:
+        path:  "{{ squid_certs_dir.path }}"
+        mode:  "{{ squid_certs_dir.mode }}"
+        state: "directory"
+        owner: "{{ squid_certs_dir.owner }}"
+        group: "{{ squid_certs_dir.group }}"
+        recurse: yes
+
+  when: (certs_result.files | length == 0) or
+        (full_reconfig | bool)
+
+- name: Verifying Squid config
+  block:
+
+    - name: Copying temporary Squid template
+      template:
+        src: squid.conf.j2
+        dest: "/tmp/squid.conf"
+        mode: 0644
+        owner: "root"
+        group: "root"
+
+    - name: Squid template syntax check
+      command: squid -k parse -f /tmp/squid.conf
+
+    - name: Copying Squid template
+      template:
+        src: squid.conf.j2
+        dest: "/etc/squid/squid.conf"
+        mode: 0644
+        owner: "root"
+        group: "root"
+      notify:
+        - squid_restart
+
+    - name : Remove temporary Squid template
+      file:
+        state: absent
+        path: "/tmp/squid.conf"
+  rescue:
+      - name: Remove temporary Squid template
+        file:
+          state: absent
+          path: "/tmp/squid.conf"
+      - name: Failing play
+        fail:
+          msg: "Syntax check error on squid.conf template. Please check!"
+
+- name: Enabling & Starting Squid Service
+  service:
+    name: "squid"
+    enabled: yes
+    state: started
+
+- name: Copying locally the SSL certificate file to mount on the agent
+  ansible.builtin.fetch:
+    src: "{{ squid_certs_dir.path }}/{{ squid_certs_cert }}"
+    dest: "{{ squid_certs_local_path }}"
+    flat: yes
+
+- name: Printing certificate location
+  debug:
+    msg: "The SSL certificate has been saved as {{ squid_certs_local_path }}"

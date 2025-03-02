@@ -1,0 +1,13 @@
+---
+squid:
+  apt_key: "https://packages.diladele.com/diladele_pub.asc"
+  apt_repo: "deb https://squid413-ubuntu20.diladele.com/ubuntu/ focal main"
+  apt_local_repo_file: "squid413-ubuntu20.diladele.com"
+  version: "4.13-10"
+  requirements:
+    - libecap3
+    - libecap3-dev
+  pkgs:
+    - squid-common
+    - squid-openssl
+    - squidclient

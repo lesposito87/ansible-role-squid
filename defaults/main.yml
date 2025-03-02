@@ -1,0 +1,30 @@
+---
+################################
+### Default variables values ###
+################################
+
+domain_name: "mydomain.com"
+
+squid_version: "5"
+
+squid_pin: True
+
+squid_http_port: "3128"
+squid_https_port: "3129"
+
+squid_additional_src_nets: []
+squid_additional_ssl_ports: []
+squid_additional_safe_ports: []
+
+squid_certs_dir:
+  path: "/etc/squid/certs"
+  owner: "root"
+  group: "root"
+  mode: "u=rwX,g=rX,o=rX"
+
+squid_certs_cert: "squid-ca-cert.pem"
+squid_certs_key: "squid-ca-key.pem"
+squid_certs_chain: "squid-ca-cert-key.pem"
+squid_certs_local_path: "/tmp/squid/squid-ca-cert.pem"
+
+full_reconfig: False
