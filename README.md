@@ -13,13 +13,14 @@ An Ansible Role that installs and configures an http/https Squid proxy.
 
 **How to execute it?**
 
-**1-** Create the following files, customizing the contents of the inventory and vars.yml files according to your requirements:
+**1-** Create the following files, customizing the contents of the `inventory` and `vars.yml` files according to your requirements:
 ```
 .
 ├── ansible.cfg
 ├── inventory
 ├── main.yml
 ├── requirements.yml
+├── vars.yml
 ```
 
 `ansible.cfg`:
@@ -44,6 +45,13 @@ ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
 ➜ cat inventory
 [squid]
 123.123.123.123 ansible_ssh_port=33333 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/myuser/.ssh/id_rsa_myuser
+```
+
+`vars.yml`:
+```
+➜ cat vars.yml
+---
+domain_name: "myowndomain.com"
 ```
 
 `requirements.yml`:
@@ -76,17 +84,7 @@ roles:
 ➜ ansible-galaxy install -r requirements.yml --force
 ```
 
-
-**3-** Customize the default variables based on your needs.
-
-For example, if you want to change the `domain_name` variable to match the dns domain in which your instance belongs to, create the directory `group_vars/squid`, the file `group_vars/squid/main.yml` and declare your variable within it:
-```
-➜ mkdir -p group_vars/squid
-
-➜ echo 'domain_name: "myowndomain.com"' >> group_vars/squid/main.yml
-```
-
-**4-** Execute the Ansible Playbook:
+**3-** Execute the Ansible Playbook:
 ```
 ➜ ansible-playbook main.yml
 ```
