@@ -13,7 +13,7 @@ squid_version: "5"
 
 # title: Choose if pin or not Squid pkgs version
 # required: True
-squid_pin: True
+squid_pin: true
 
 # title: Squid http port
 # required: True
@@ -61,4 +61,4 @@ squid_certs_local_path: "/tmp/squid/squid-ca-cert.pem"
 
 # title: Set this to "true" if you want to regenerate TLS certificates
 # required: True
-full_reconfig: False
+full_reconfig: false
