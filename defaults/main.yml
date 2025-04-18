@@ -3,28 +3,62 @@
 ### Default variables values ###
 ################################
 
+# title: The DNS domain in which your Squid instance belongs to. This will be used to generate the Wildcard Self Signed certificates. If the hostname of your instance is "squid.myowndomain.com" then this variable has to be set as "myowndomain.com"
+# required: True
 domain_name: "mydomain.com"
 
+# title: Squid version you want to install; it can be `4` or `5`
+# required: True
 squid_version: "5"
 
+# title: Choose if pin or not Squid pkgs version
+# required: True
 squid_pin: True
 
+# title: Squid http port
+# required: True
 squid_http_port: "3128"
+
+# title: Squid https port
+# required: True
 squid_https_port: "3129"
 
+# title: Additional Source subnets to allow communicating with our Squid instance
+# required: True
 squid_additional_src_nets: []
+
+# title: Additional allowed destination TLS ports
+# required: True
 squid_additional_ssl_ports: []
+
+# title: Additional allowed destination ports
+# required: True
 squid_additional_safe_ports: []
 
+# title: Path where to store the TLS Self signed certificates
+# required: True
 squid_certs_dir:
   path: "/etc/squid/certs"
   owner: "root"
   group: "root"
   mode: "u=rwX,g=rX,o=rX"
 
+# title: TLS certificate file name
+# required: True
 squid_certs_cert: "squid-ca-cert.pem"
+
+# title: TLS key file name
+# required: True
 squid_certs_key: "squid-ca-key.pem"
+
+# title: TLS chain file name
+# required: True
 squid_certs_chain: "squid-ca-cert-key.pem"
+
+# title: Local directory where the resulting TLS certificates will be copied
+# required: True
 squid_certs_local_path: "/tmp/squid/squid-ca-cert.pem"
 
+# title: Set this to "true" if you want to regenerate TLS certificates
+# required: True
 full_reconfig: False
