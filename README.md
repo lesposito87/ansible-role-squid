@@ -53,39 +53,39 @@ Description: An Ansible Role that installs and configures an http/https Squid pr
 
 | Name | Module | Has Conditions |
 | ---- | ------ | --------- |
-| Ensure you're running a supported Ubuntu based OS and Squid version | assert | False |
-| Including "{{ ansible_distribution ¦ lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml" variable's file | include_vars | False |
-| Including Squid setup task | include_tasks | False |
+| Ensure you're running a supported Ubuntu based OS and Squid version | ansible.builtin.assert | False |
+| Including "{{ ansible_distribution ¦ lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml" variable's file | ansible.builtin.include_vars | False |
+| Including Squid setup task | ansible.builtin.include_tasks | False |
 
 #### File: tasks/squid.yml
 
 | Name | Module | Has Conditions |
 | ---- | ------ | --------- |
-| Ensure "python3-selinux" pkg is installed | package | False |
-| Check if SELinux is installed | find | False |
+| Ensure "python3-selinux" pkg is installed | ansible.builtin.package | False |
+| Check if SELinux is installed | ansible.builtin.find | False |
 | Configuring SELinux in permissive mode | ansible.posix.selinux | True |
-| Ensure Firewalld/Iptables service are stopped | service | False |
+| Ensure Firewalld/Iptables service are stopped | ansible.builtin.service | False |
 | Adding Apt signing key | ansible.builtin.apt_key | False |
 | Adding Squid Debian repository | ansible.builtin.apt_repository | False |
-| Installing required packages | package | False |
-| Gather packages facts | package_facts | False |
-| UnPin Squid packages (apt) | dpkg_selections | True |
-| Installing Squid packages | package | False |
-| Pin Squid packages (apt) | dpkg_selections | True |
-| Ensure Self Signed certificates directory exists | file | False |
-| Retrieving Self Signed certificates | find | False |
+| Installing required packages | ansible.builtin.package | False |
+| Gather packages facts | ansible.builtin.package_facts | False |
+| UnPin Squid packages (apt) | ansible.builtin.dpkg_selections | True |
+| Installing Squid packages | ansible.builtin.package | False |
+| Pin Squid packages (apt) | ansible.builtin.dpkg_selections | True |
+| Ensure Self Signed certificates directory exists | ansible.builtin.file | False |
+| Retrieving Self Signed certificates | ansible.builtin.find | False |
 | Generating and Copying Self Signed certificates | block | True |
-| Ensure Squid service is stopped | service | False |
-| Creating Self Signed certificates | shell | False |
-| Ensure ownership of Self Signed certificates directory is correct | file | False |
+| Ensure Squid service is stopped | ansible.builtin.service | False |
+| Creating Self Signed certificates | ansible.builtin.shell | False |
+| Ensure ownership of Self Signed certificates directory is correct | ansible.builtin.file | False |
 | Verifying Squid config | block | False |
-| Copying temporary Squid template | template | False |
-| Squid template syntax check | command | False |
-| Copying Squid template | template | False |
-| Remove temporary Squid template | file | False |
-| Enabling & Starting Squid Service | service | False |
+| Copying temporary Squid template | ansible.builtin.template | False |
+| Squid template syntax check | ansible.builtin.command | False |
+| Copying Squid template | ansible.builtin.template | False |
+| Remove temporary Squid template | ansible.builtin.file | False |
+| Enabling & Starting Squid Service | ansible.builtin.service | False |
 | Copying locally the SSL certificate file to mount on the agent | ansible.builtin.fetch | False |
-| Printing certificate location | debug | False |
+| Printing certificate location | ansible.builtin.debug | False |
 
 
 ## Task Flow Graphs
@@ -135,7 +135,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Adding_Apt_signing_key4-->|Task| Adding_Squid_Debian_repository5[adding squid debian repository]:::task
   Adding_Squid_Debian_repository5-->|Task| Installing_required_packages6[installing required packages]:::task
   Installing_required_packages6-->|Task| Gather_packages_facts7[gather packages facts]:::task
-  Gather_packages_facts7-->|Task| UnPin_Squid_packages__apt_8[unpin squid packages  apt <br>When: **ansible pkg mgr     apt   and  squid pin bool   <br>true  and    squid common  in ansible facts<br>packages  or   squid openssl  in ansible facts<br>packages  or   squidclient  in ansible facts<br>packages**]:::task
+  Gather_packages_facts7-->|Task| UnPin_Squid_packages__apt_8[unpin squid packages  apt <br>When: **ansible pkg mgr     apt   and  not squid pin  <br>bool  and    squid common  in ansible facts<br>packages  or   squid openssl  in ansible facts<br>packages  or   squidclient  in ansible facts<br>packages**]:::task
   UnPin_Squid_packages__apt_8-->|Task| Installing_Squid_packages9[installing squid packages]:::task
   Installing_Squid_packages9-->|Task| Pin_Squid_packages__apt_10[pin squid packages  apt <br>When: **ansible pkg mgr     apt   and  squid pin**]:::task
   Pin_Squid_packages__apt_10-->|Task| Ensure_Self_Signed_certificates_directory_exists11[ensure self signed certificates directory exists]:::task
@@ -166,7 +166,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 ## Author Information
-https://www.linkedin.com/in/lucaesposito87/
+lesposito87
 
 #### License
 
@@ -178,7 +178,7 @@ MIT
 
 #### Platforms
 
-- **Ubuntu**: [20.04]
+- **Ubuntu**: ['20.04']
 
 
 #### Dependencies
