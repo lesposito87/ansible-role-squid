@@ -4,92 +4,20 @@
 
 ## ansible-role-squid
 
-**Description** 
-
-An Ansible Role that installs and configures an http/https Squid proxy.
 
 
-⚠️ This Ansible Role currently supports only **Ubuntu 20.04 OS**.
+Description: An Ansible Role that installs and configures an http/https Squid proxy.
 
-**How to execute it?**
 
-**1-** Create the following files, customizing the contents of the `inventory` and `vars.yml` files according to your requirements:
-```
-.
-├── ansible.cfg
-├── inventory
-├── main.yml
-├── requirements.yml
-├── vars.yml
-```
 
-`ansible.cfg`:
-```
-➜ cat ansible.cfg
-[defaults]
-host_key_checking = False
-inventory = inventory
 
-[privilege_escalation]
-become=True
-become_method=sudo
-become_user=root
-become_ask_pass=False
 
-[ssh_connection]
-ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
-```
 
-`inventory`:
-```
-➜ cat inventory
-[squid]
-123.123.123.123 ansible_ssh_port=33333 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/Users/myuser/.ssh/id_rsa_myuser
-```
 
-`vars.yml`:
-```
-➜ cat vars.yml
----
-domain_name: "myowndomain.com"
-```
 
-`requirements.yml`:
-```
-➜ cat requirements.yml
----
-roles:
-  - name: lesposito87.ansible-role-squid
-    src: https://github.com/lesposito87/ansible-role-squid.git
-    version: main
-```
 
-`main.yml`:
-```
-➜ cat main.yml
----
-- hosts: squid
-  become: true
-  gather_facts: True
-  vars_files:
-    - vars.yml
 
-  tasks:
-    - include_role:
-        name: lesposito87.ansible-role-squid
-```
 
-**2-** Install the Ansible Role locally:
-```
-➜ ansible-galaxy install -r requirements.yml --force
-```
-
-**3-** Execute the Ansible Playbook:
-```
-➜ ansible-playbook main.yml
-```
-
-<br>
 
 ### Defaults
 
@@ -99,25 +27,35 @@ roles:
 
 | Var          | Type         | Value       |Required    | Title       |
 |--------------|--------------|-------------|-------------|-------------|
-| [domain_name](defaults/main.yml#L6)   | str   | `mydomain.com` |    True  |  The DNS domain in which your Squid instance belongs to. This will be used to generate the Wildcard Self Signed certificates. If the hostname of your instance is `squid.myowndomain.com` then this variable has to be set as `myowndomain.com` |
-| [squid_version](defaults/main.yml#L8)   | str   | `5` |    True  |  Squid version you want to install; it can be `4` or `5` |
-| [squid_pin](defaults/main.yml#L10)   | bool   | `True` |    True  |  Choose if pin or not Squid pkgs version |
-| [squid_http_port](defaults/main.yml#L12)   | str   | `3128` |    True  |  Squid http port |
-| [squid_https_port](defaults/main.yml#L13)   | str   | `3129` |    True  |  Squid https port |
-| [squid_additional_src_nets](defaults/main.yml#L15)   | list   | `[]` |    True  |  Additional Source subnets to allow communicating with our Squid instance: <pre>squid_additional_src_nets: <br>  - 192.168.32.100/32<br>  - 192.168.32.101/32</pre> |
-| [squid_additional_ssl_ports](defaults/main.yml#L16)   | list   | `[]` |    True  |  Additional allowed destination TLS ports: <pre>squid_additional_ssl_ports:<br>  - 443<br>  - 6443</pre> |
-| [squid_additional_safe_ports](defaults/main.yml#L17)   | list   | `[]` |    True  |  Additional allowed destination ports: <pre>squid_additional_safe_ports:<br>   - 8080<br>   - 8081</pre>|
-| [squid_certs_dir](defaults/main.yml#L19)   | dict   | `{'path': '/etc/squid/certs', 'owner': 'root', 'group': 'root', 'mode': 'u=rwX,g=rX,o=rX'}` |    True  |  Path where to store the TLS Self signed certificates |
-| [squid_certs_cert](defaults/main.yml#L25)   | str   | `squid-ca-cert.pem` |    True  |  TLS certificate file name |
-| [squid_certs_key](defaults/main.yml#L26)   | str   | `squid-ca-key.pem` |    True  |  TLS key file name |
-| [squid_certs_chain](defaults/main.yml#L27)   | str   | `squid-ca-cert-key.pem` |    True  | TLS chain file name |
-| [squid_certs_local_path](defaults/main.yml#L28)   | str   | `/tmp/squid/squid-ca-cert.pem` |    True  |  Local directory where the resulting TLS certificates will be copied. |
-| [full_reconfig](defaults/main.yml#L30)   | bool   | `False` |    True  |  Set this to `true` if you want to regenerate TLS certificates |
+| [domain_name](defaults/main.yml#L8)   | str   | `mydomain.com` |    True  |  The DNS domain in which your Squid instance belongs to. This will be used to generate the Wildcard Self Signed certificates. If the hostname of your instance is "squid.myowndomain.com" then this variable has to be set as "myowndomain.com" |
+| [squid_version](defaults/main.yml#L12)   | str   | `5` |    True  |  Squid version you want to install; it can be `4` or `5` |
+| [squid_pin](defaults/main.yml#L16)   | bool   | `True` |    True  |  Choose if pin or not Squid pkgs version |
+| [squid_http_port](defaults/main.yml#L20)   | str   | `3128` |    True  |  Squid http port |
+| [squid_https_port](defaults/main.yml#L24)   | str   | `3129` |    True  |  Squid https port |
+| [squid_additional_src_nets](defaults/main.yml#L28)   | list   | `[]` |    True  |  Additional Source subnets to allow communicating with our Squid instance |
+| [squid_additional_ssl_ports](defaults/main.yml#L32)   | list   | `[]` |    True  |  Additional allowed destination TLS ports |
+| [squid_additional_safe_ports](defaults/main.yml#L36)   | list   | `[]` |    True  |  Additional allowed destination ports |
+| [squid_certs_dir](defaults/main.yml#L40)   | dict   | `{'path': '/etc/squid/certs', 'owner': 'root', 'group': 'root', 'mode': 'u=rwX,g=rX,o=rX'}` |    True  |  Path where to store the TLS Self signed certificates |
+| [squid_certs_cert](defaults/main.yml#L48)   | str   | `squid-ca-cert.pem` |    True  |  TLS certificate file name |
+| [squid_certs_key](defaults/main.yml#L52)   | str   | `squid-ca-key.pem` |    True  |  TLS key file name |
+| [squid_certs_chain](defaults/main.yml#L56)   | str   | `squid-ca-cert-key.pem` |    True  |  TLS chain file name |
+| [squid_certs_local_path](defaults/main.yml#L60)   | str   | `/tmp/squid/squid-ca-cert.pem` |    True  |  Local directory where the resulting TLS certificates will be copied |
+| [full_reconfig](defaults/main.yml#L64)   | bool   | `False` |    True  |  Set this to "true" if you want to regenerate TLS certificates |
 
-<br>
+
+
+
 
 ### Tasks
 
+
+#### File: tasks/main.yml
+
+| Name | Module | Has Conditions |
+| ---- | ------ | --------- |
+| Ensure you're running a supported Ubuntu based OS and Squid version | assert | False |
+| Including "{{ ansible_distribution ¦ lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml" variable's file | include_vars | False |
+| Including Squid setup task | include_tasks | False |
 
 #### File: tasks/squid.yml
 
@@ -149,17 +87,31 @@ roles:
 | Copying locally the SSL certificate file to mount on the agent | ansible.builtin.fetch | False |
 | Printing certificate location | debug | False |
 
-#### File: tasks/main.yml
-
-| Name | Module | Has Conditions |
-| ---- | ------ | --------- |
-| Ensure you're running a supported Ubuntu based OS and Squid version | assert | False |
-| Including "{{ ansible_distribution ¦ lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml" variable's file | include_vars | False |
-| Including Squid setup task | include_tasks | False |
-
-<br>
 
 ## Task Flow Graphs
+
+
+
+### Graph for main.yml
+
+```mermaid
+flowchart TD
+Start
+classDef block stroke:#3498db,stroke-width:2px;
+classDef task stroke:#4b76bb,stroke-width:2px;
+classDef includeTasks stroke:#16a085,stroke-width:2px;
+classDef importTasks stroke:#34495e,stroke-width:2px;
+classDef includeRole stroke:#2980b9,stroke-width:2px;
+classDef importRole stroke:#699ba7,stroke-width:2px;
+classDef includeVars stroke:#8e44ad,stroke-width:2px;
+classDef rescue stroke:#665352,stroke-width:2px;
+
+  Start-->|Task| Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0[ensure you re running a supported ubuntu based os<br>and squid version]:::task
+  Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0-->|Include vars| vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml1[including     ansible distribution   lower   <br>ansible distribution version squid squid version<br>main yml  variable s file<br>include_vars: vars    ansible distribution   lower       ansible<br>distribution version    squid    squid version   <br>main yml]:::includeVars
+  vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml1-->|Include task| squid_yml2[including squid setup task<br>include_task: squid yml]:::includeTasks
+  squid_yml2-->End
+```
+
 
 ### Graph for squid.yml
 
@@ -210,27 +162,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ```
 
 
-### Graph for main.yml
 
-```mermaid
-flowchart TD
-Start
-classDef block stroke:#3498db,stroke-width:2px;
-classDef task stroke:#4b76bb,stroke-width:2px;
-classDef includeTasks stroke:#16a085,stroke-width:2px;
-classDef importTasks stroke:#34495e,stroke-width:2px;
-classDef includeRole stroke:#2980b9,stroke-width:2px;
-classDef importRole stroke:#699ba7,stroke-width:2px;
-classDef includeVars stroke:#8e44ad,stroke-width:2px;
-classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0[ensure you re running a supported ubuntu based os<br>and squid version]:::task
-  Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0-->|Include vars| vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml1[including     ansible distribution   lower   <br>ansible distribution version squid squid version<br>main yml  variable s file<br>include_vars: vars    ansible distribution   lower       ansible<br>distribution version    squid    squid version   <br>main yml]:::includeVars
-  vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml1-->|Include task| squid_yml2[including squid setup task<br>include_task: squid yml]:::includeTasks
-  squid_yml2-->End
-```
-
-<br>
 
 ## Author Information
 https://www.linkedin.com/in/lucaesposito87/
@@ -247,4 +180,8 @@ MIT
 
 - **Ubuntu**: [20.04]
 
+
+#### Dependencies
+
+No dependencies specified.
 <!-- DOCSIBLE END -->
