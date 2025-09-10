@@ -26,21 +26,25 @@ Description: An Ansible Role that installs and configures an http/https Squid pr
 #### File: defaults/main.yml
 
 | Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|-------------|-------------|
-| [domain_name](defaults/main.yml#L8)   | str   | `mydomain.com` |    True  |  The DNS domain in which your Squid instance belongs to. This will be used to generate the Wildcard Self Signed certificates. If the hostname of your instance is "squid.myowndomain.com" then this variable has to be set as "myowndomain.com" |
-| [squid_version](defaults/main.yml#L12)   | str   | `5` |    True  |  Squid version you want to install; it can be `4` or `5` |
-| [squid_pin](defaults/main.yml#L16)   | bool   | `True` |    True  |  Choose if pin or not Squid pkgs version |
-| [squid_http_port](defaults/main.yml#L20)   | str   | `3128` |    True  |  Squid http port |
-| [squid_https_port](defaults/main.yml#L24)   | str   | `3129` |    True  |  Squid https port |
-| [squid_additional_src_nets](defaults/main.yml#L28)   | list   | `[]` |    True  |  Additional Source subnets to allow communicating with our Squid instance |
-| [squid_additional_ssl_ports](defaults/main.yml#L32)   | list   | `[]` |    True  |  Additional allowed destination TLS ports |
-| [squid_additional_safe_ports](defaults/main.yml#L36)   | list   | `[]` |    True  |  Additional allowed destination ports |
-| [squid_certs_dir](defaults/main.yml#L40)   | dict   | `{'path': '/etc/squid/certs', 'owner': 'root', 'group': 'root', 'mode': 'u=rwX,g=rX,o=rX'}` |    True  |  Path where to store the TLS Self signed certificates |
-| [squid_certs_cert](defaults/main.yml#L48)   | str   | `squid-ca-cert.pem` |    True  |  TLS certificate file name |
-| [squid_certs_key](defaults/main.yml#L52)   | str   | `squid-ca-key.pem` |    True  |  TLS key file name |
-| [squid_certs_chain](defaults/main.yml#L56)   | str   | `squid-ca-cert-key.pem` |    True  |  TLS chain file name |
-| [squid_certs_local_path](defaults/main.yml#L60)   | str   | `/tmp/squid/squid-ca-cert.pem` |    True  |  Local directory where the resulting TLS certificates will be copied |
-| [full_reconfig](defaults/main.yml#L64)   | bool   | `False` |    True  |  Set this to "true" if you want to regenerate TLS certificates |
+|--------------|--------------|-------------|------------|-------------|
+| [domain_name](defaults/main.yml#L8)   | str | `mydomain.com` |    True  |  The DNS domain in which your Squid instance belongs to. This will be used to generate the Wildcard Self Signed certificates. If the hostname of your instance is "squid.myowndomain.com" then this variable has to be set as "myowndomain.com" |
+| [squid_version](defaults/main.yml#L12)   | str | `5` |    True  |  Squid version you want to install; it can be `4` or `5` |
+| [squid_pin](defaults/main.yml#L16)   | bool | `True` |    True  |  Choose if pin or not Squid pkgs version |
+| [squid_http_port](defaults/main.yml#L20)   | str | `3128` |    True  |  Squid http port |
+| [squid_https_port](defaults/main.yml#L24)   | str | `3129` |    True  |  Squid https port |
+| [squid_additional_src_nets](defaults/main.yml#L28)   | list | `[]` |    True  |  Additional Source subnets to allow communicating with our Squid instance |
+| [squid_additional_ssl_ports](defaults/main.yml#L32)   | list | `[]` |    True  |  Additional allowed destination TLS ports |
+| [squid_additional_safe_ports](defaults/main.yml#L36)   | list | `[]` |    True  |  Additional allowed destination ports |
+| [squid_certs_dir](defaults/main.yml#L40)   | dict | `{}` |    True  |  Path where to store the TLS Self signed certificates |
+| [squid_certs_dir.**path**](defaults/main.yml#L41)   | str | `/etc/squid/certs` |    None  |  None |
+| [squid_certs_dir.**owner**](defaults/main.yml#L42)   | str | `root` |    None  |  None |
+| [squid_certs_dir.**group**](defaults/main.yml#L43)   | str | `root` |    None  |  None |
+| [squid_certs_dir.**mode**](defaults/main.yml#L44)   | str | `u=rwX,g=rX,o=rX` |    None  |  None |
+| [squid_certs_cert](defaults/main.yml#L48)   | str | `squid-ca-cert.pem` |    True  |  TLS certificate file name |
+| [squid_certs_key](defaults/main.yml#L52)   | str | `squid-ca-key.pem` |    True  |  TLS key file name |
+| [squid_certs_chain](defaults/main.yml#L56)   | str | `squid-ca-cert-key.pem` |    True  |  TLS chain file name |
+| [squid_certs_local_path](defaults/main.yml#L60)   | str | `/tmp/squid/squid-ca-cert.pem` |    True  |  Local directory where the resulting TLS certificates will be copied |
+| [full_reconfig](defaults/main.yml#L64)   | bool | `False` |    True  |  Set this to "true" if you want to regenerate TLS certificates |
 
 
 
@@ -52,7 +56,7 @@ Description: An Ansible Role that installs and configures an http/https Squid pr
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions |
-| ---- | ------ | --------- |
+| ---- | ------ | -------------- |
 | Ensure you're running a supported Ubuntu based OS and Squid version | ansible.builtin.assert | False |
 | Including "{{ ansible_distribution ¦ lower }}_{{ ansible_distribution_version }}/squid_{{ squid_version }}/main.yml" variable's file | ansible.builtin.include_vars | False |
 | Including Squid setup task | ansible.builtin.include_tasks | False |
@@ -60,7 +64,7 @@ Description: An Ansible Role that installs and configures an http/https Squid pr
 #### File: tasks/squid.yml
 
 | Name | Module | Has Conditions |
-| ---- | ------ | --------- |
+| ---- | ------ | -------------- |
 | Ensure "python3-selinux" pkg is installed | ansible.builtin.package | False |
 | Check if SELinux is installed | ansible.builtin.find | False |
 | Configuring SELinux in permissive mode | ansible.posix.selinux | True |
@@ -107,9 +111,9 @@ classDef includeVars stroke:#8e44ad,stroke-width:2px;
 classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0[ensure you re running a supported ubuntu based os<br>and squid version]:::task
-  Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0-->|Include vars| vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml1[including     ansible distribution   lower   <br>ansible distribution version squid squid version<br>main yml  variable s file<br>include_vars: vars    ansible distribution   lower       ansible<br>distribution version    squid    squid version   <br>main yml]:::includeVars
-  vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml1-->|Include task| squid_yml2[including squid setup task<br>include_task: squid yml]:::includeTasks
-  squid_yml2-->End
+  Ensure_you_re_running_a_supported_Ubuntu_based_OS_and_Squid_version0-->|Include vars| Including_____ansible_distribution___lower____ansible_distribution_version_squid_squid_version_main_yml__variable_s_file_vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml_1[including     ansible distribution   lower   <br>ansible distribution version squid squid version<br>main yml  variable s file<br>include_vars: vars    ansible distribution   lower       ansible<br>distribution version    squid    squid version   <br>main yml]:::includeVars
+  Including_____ansible_distribution___lower____ansible_distribution_version_squid_squid_version_main_yml__variable_s_file_vars____ansible_distribution___lower_______ansible_distribution_version____squid____squid_version____main_yml_1-->|Include task| Including_Squid_setup_task_squid_yml_2[including squid setup task<br>include_task: squid yml]:::includeTasks
+  Including_Squid_setup_task_squid_yml_2-->End
 ```
 
 
